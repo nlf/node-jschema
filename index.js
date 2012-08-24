@@ -20,9 +20,6 @@ Everything else stated in the spec is at least mostly functional. Note that, cur
 
 */
 
-// only one dependency, tried to keep things as native to node as possible
-var util = require('util');
-
 // helper function to verify type of properties
 validator.prototype._checkType = function (type, value, path) {
     var match = false,
@@ -40,7 +37,7 @@ validator.prototype._checkType = function (type, value, path) {
             } else if (type === 'buffer') {
                 match = Buffer.isBuffer(value);
             } else if (type === 'date') {
-                match = util.isDate(value);
+                match = value instanceof Date;
             } else if (type === 'any') {
                 match = true;
             } else if (type === 'null') {
