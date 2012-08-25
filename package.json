@@ -1,6 +1,6 @@
 {
   "name": "jschema",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "a JSON-schema validation library",
   "main": "index.js",
   "repository": {
@@ -13,5 +13,8 @@
     "validation"
   ],
   "author": "Nathan LaFreniere",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "nodeunit": "~0.7.4"
+  }
 }

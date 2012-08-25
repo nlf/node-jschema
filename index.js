@@ -30,9 +30,7 @@ validator.prototype._checkType = function (type, value, path) {
         type = [].concat(type);
         var types = type.map(function (item) { if (typeof item === 'string') return item.toLowerCase(); });
         types.forEach(function (type) {
-            if (~['number', 'boolean', 'string', 'object'].indexOf(type)) {
-                match = typeof value === type;
-            } else if (type === 'array') {
+            if (type === 'array') {
                 match = Array.isArray(value);
             } else if (type === 'buffer') {
                 match = Buffer.isBuffer(value);
@@ -44,6 +42,12 @@ validator.prototype._checkType = function (type, value, path) {
                 match = value === null;
             } else if (type === 'integer') {
                 match = typeof value === 'number' && (parseFloat(value) == parseInt(value, 10));
+            } else if (~['number', 'boolean', 'string'].indexOf(type)) {
+                match = typeof value === type;
+            } else if (type === 'object') {
+                if (typeof value === type && !Array.isArray(value) && !Buffer.isBuffer(value) && !(value instanceof Date) && value !== null) {
+                    match = true;
+                }
             }
         });
     }
@@ -168,7 +172,7 @@ validator.prototype._validateItem = function (object, path, forceSchema) {
     }
 
     // if we have no actual object, but the schema states it's required, raise an error
-    if (!object) {
+    if (!object && object !== false && object !== null) {
         if (schema.hasOwnProperty('required') && schema.required) {
             _addError(path, 'missing required value');
         }
@@ -176,6 +180,10 @@ validator.prototype._validateItem = function (object, path, forceSchema) {
         // here we do checks for the array type
         var parse = true;
         if (Array.isArray(object)) {
+            if (schema.hasOwnProperty('type')) {
+                if (!self._checkType(schema.type, object))
+                    _addError(path, 'invalid type', schema.type, typeof object);
+            }
             if (schema.hasOwnProperty('minItems')) {
                 if (object.length < schema.minItems)
                     _addError(path, 'minimum items exceeded', schema.minItems, object.length);
@@ -189,7 +197,7 @@ validator.prototype._validateItem = function (object, path, forceSchema) {
                     _addError(path, 'duplicate array items found');
             }
             if (schema.hasOwnProperty('items')) {
-                schema = schema.items;
+                self._validateItem(object, path, schema.items); 
             } else {
                 parse = false;
             }
@@ -201,7 +209,6 @@ validator.prototype._validateItem = function (object, path, forceSchema) {
             checks.forEach(function (check) {
                 // make sure the type is not in the disallow list
                 if (schema.hasOwnProperty('disallow')) {
-                    console.log(self._checkDisallow(schema.disallow, check, path));
                     if (!self._checkDisallow(schema.disallow, check, path)) {
                         if (typeof schema.type !== 'object') {
                             _addError(path, 'disallowed type', schema.disallow, typeof check);
@@ -282,7 +289,7 @@ validator.prototype._validateItem = function (object, path, forceSchema) {
             }
         });
     } 
-    return ret;
+    if (forceSchema) return ret;
 };
 
 // object initializing function
@@ -294,6 +301,7 @@ function validator(schema) {
 
 // the function intended for direct use
 validator.prototype.validate = function (obj, callback) {
+    this.errors = [];
     this._validateItem(obj, '');
     if (!this.errors.length) {
         return callback();
