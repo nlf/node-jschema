@@ -172,7 +172,7 @@ validator.prototype._validateItem = function (object, path, forceSchema) {
     }
 
     // if we have no actual object, but the schema states it's required, raise an error
-    if (!object && object !== false && object !== null) {
+    if (typeof object === 'undefined' || object === null) {
         if (schema.hasOwnProperty('required') && schema.required) {
             _addError(path, 'missing required value');
         }

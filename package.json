@@ -1,6 +1,6 @@
 {
   "name": "jschema",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "a JSON-schema validation library",
   "main": "index.js",
   "repository": {
