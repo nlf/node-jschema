@@ -1,11 +1,11 @@
 {
   "name": "jschema",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "a JSON-schema validation library",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/nathan-lafreniere/node-jschema.git"
+    "url": "git://github.com/nlf/node-jschema.git"
   },
   "keywords": [
     "json",
